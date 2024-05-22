@@ -13,6 +13,8 @@ print(features.shape)
 # Scale the features (so they have mean 0 and sdev 1)
 features = (features - np.mean(features, axis=0)[None,:]) / np.std(features, axis=0)[None,:]
 
+np.savetxt("3a.txt", features)
+
 print(np.mean(features, axis=0))
 print(np.std(features, axis=0))
 
@@ -183,7 +185,7 @@ out[3], cost23 = DownhillSimplex(lambda x: cost_function(features[:,1:3], mask, 
 out[4], cost24 = DownhillSimplex(lambda x: cost_function(features[:,1::2], mask, x), x_0[:3,1::2], 1e-5)
 out[5], cost34 = DownhillSimplex(lambda x: cost_function(features[:,2:4], mask, x), x_0[:3,2:4], 1e-5)
 
-
+features_subset = np.array([features[:,:2],features[:,:3:2],features[:,::3],features[:,1:3],features[:,1::2],features[:,2:4]])
 
 print(out)
 
@@ -228,3 +230,20 @@ for i, comb in enumerate(itertools.combinations(np.arange(0,4), 2)):
     ax[plot_idx[i][0], plot_idx[i][1]].plot([x_0,y_0],[x_1,y_1], 'k--')
 plt.savefig("fig3c.png")
 plt.close()
+
+
+# Calculate true/flase positives/negatives
+labels = ["1+2","1+3","1+4","2+3","2+4","3+4"]
+with open("3c.txt", "w") as f:
+    f.write("Parameters, True Positive, False Positive, True Negative, False Negative, F1-Score\n")
+    for i in range(6):
+        true_positive = np.sum((eval(features_subset[i], out[i]) == 1) & (mask == 1))
+        false_positive = np.sum((eval(features_subset[i], out[i]) == 1) & (mask == 0))
+        true_negative = np.sum((eval(features_subset[i], out[i]) == 0) & (mask == 0))
+        false_negative = np.sum((eval(features_subset[i], out[i]) == 0) & (mask == 1))
+
+        precision = true_positive / (true_positive + false_positive)
+        recall = true_positive / (true_positive + false_negative)
+        f1 = 2 * precision * recall / (precision + recall)
+
+        f.write(f"{labels[i]}, {true_positive}, {false_positive}, {true_negative}, {false_negative}, {f1}\n")

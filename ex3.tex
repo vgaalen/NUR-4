@@ -1,0 +1,43 @@
+\section{Spiral and elliptical galaxies}
+
+\todo{insert code}
+
+\subsection*{a}
+For this exercise I classified galaxies into two types: spirals and ellipticals, using logistic regression.
+
+First the data has to be prepared; logistic regression works best on a dataset with mean 0 and standard deviation 1.
+Therefore we rescale the given dataset, resulting in the following:
+\lstinputlisting[lastline=10, caption=The first 10 entries in the dataset after rescaling.]{3a.txt}
+
+The full distributions than like this (figure \ref{fig:rescaled_data}):
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{fig3a.png}
+    \caption{The data after rescaling.}
+    \label{fig:rescaled_data}
+\end{figure}
+
+
+
+\subsection*{b}
+Now we perform the actual regression by minimizing a sigmoid cost function using the Downhill Simplex algorithm.
+In order to find the parameters that best describe a galaxy's type, only two parameters are used at a time.
+All possible combinations are then compared in figure \ref{fig:logistic_regression}.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{fig3b.png}
+    \caption{The results of the logistic regression.}
+    \label{fig:logistic_regression}
+\end{figure}
+
+This plot shows that $\kappa_{\text{CO}}$ and the color best describe the type of galaxy.
+
+
+
+\subsection*{c}
+In order to see how well the logistic regression works, I computed the true positives, true negatives, false positives, false negatives, and F1-Score for each set of parameters:
+\lstinputlisting{3c.txt}
+
+This shows again that the first set of parameters is best suited for this application.
+
