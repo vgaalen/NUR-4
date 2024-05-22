@@ -1,0 +1,53 @@
+\section{Simulating the solar system}
+
+\todo{insert code}
+
+\subsection*{a}
+In this exercise I simulate the orbits of the eight planets in the solar system.
+The easiest set of initial parameters is one sampled from reality.
+In order to get the initial positions and velocities of the planets, I used the \texttt{astropy} package.
+Its \texttt{get\_body\_barycentric()} function gets this information from JPL's DE430 ephemerides \todo{reference}.
+
+These positions are shown in figure \ref{fig:initial_positions}.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{fig1a.png}
+    \caption{Initial positions of the planets in the solar system.}
+    \label{fig:initial_positions}
+\end{figure}
+
+
+
+\subsection*{b}
+In order to simulate the orbits, I have to integrate equations of motion incorporating gravitational forces.
+Here a heavily simplified approach is used.
+Only the Newtonian gravitational force between the sun and planets is incorporated (so planet-planet attraction is neglected).
+
+For orbits in particular, it is important to have an integrator that conserves energy as otherwise the orbits will spiral outwards or inwards.
+The leapfrog integrator is a good choice for this, as it is simple and conserves energy.
+This integrator 'leaps' the position and velocities separately with a half time step between them:
+\begin{align}
+    \mathbf{v}_{1/2} &= \mathbf{v}_0 + \frac{1}{2} \mathbf{a}_0 \Delta t \\
+    \mathbf{x}_{i+1} &= \mathbf{x}_i + \mathbf{v}_{i+1/2} \Delta t \\
+    \mathbf{v}_{i+3/2} &= \mathbf{v}_{i+1/2} + \mathbf{a}_{i+1} \Delta t
+\end{align}
+
+Integrating over 200 years with timesteps of 0.5 days, gives the orbits shown in figure \ref{fig:orbits}.
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{fig1b.png}
+    \caption{Orbits of the planets in the solar system. Integrated over 200 years with a timestep of 0.5 days using the leapfrog integrator.}
+    \label{fig:orbits}
+\end{figure}
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{fig1b-1.png}
+    \caption{The same as figure \ref{fig:orbits}, but zoomed in on the inner planets.}
+    \label{fig:orbits-zoom}
+\end{figure}
+
+
+
+\subsection*{c}
+\todo{1c}
