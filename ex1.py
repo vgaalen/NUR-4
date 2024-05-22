@@ -68,7 +68,7 @@ def a(x):
     unit = x/np.sqrt(x[0]**2+x[1]**2+x[2]**2)
     return unit[0]*abs, unit[1]*abs, unit[2]*abs
 
-time = t + np.arange(0,200,0.5)*u.day
+time = t + np.arange(0,200*365,0.5)*u.day
 #print(time)
 h = 0.5 * u.day
 
