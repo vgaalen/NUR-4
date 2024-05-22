@@ -80,54 +80,39 @@ ax[1,1].set_aspect('equal', 'box')
 plt.savefig("fig2b_pot.png")
 plt.close()
 
-def bit_reverse(n, decimal_places = 10):
-    if n%1==0:
-        #print('int')
-        # if n is an integer
-        n = int(n)
-        #print(n, bin(n), bin(n)[:1:-1])
+def bit_reverse_int(n, bits=None):
+    """
+    Perform a bit-reversal on an integer
+    """
+    if bits is None:
+        bits = int(np.ceil(np.log2(n)))
 
-        return int(bin(n)[:1:-1], 2)
-    
-    # if n is a float
-
-    # split the number at the decimal point
-    whole, dec = np.format_float_positional(n, precision=decimal_places).split(".")
-
-    whole, dec = int(whole), int(dec)
-    print(bin(whole), bin(dec))
-
-    #res = bin(whole).lstrip("0b") + "."
-
-    whole = int(bin(whole)[:-2:-1], 2)
-    dec = int(bin(dec)[:-2:-1], 2)
-    return float(str(whole)+"."+str(dec))
-
-def test_bit_reverse():
-    # x = np.random.randint(1,1e5)
-    # try:
-    #     assert(np.invert(x) == bit_reverse(x))
-    # except:
-    #     print(x, np.invert(x), bit_reverse(x))
-    #     assert(np.invert(x) == bit_reverse(x))
-    
-    try:
-        assert(bit_reverse(int('10011101', 2) == int('10111001', 2)))
-    except:
-        print('abc', int('10011101', 2), int('10111001', 2), bit_reverse(int('10011101', 2)))
-        assert(bit_reverse(int('10011101', 2) == int('10111001', 2)))
-
+    binary = bin(n)[2:]
+    if len(binary) == bits:
+        return int(binary[::-1], 2)
+    else:
+        add = bits - len(binary)
+        if add<0:
+            raise ValueError("Number of bits is too small")
+        binary = binary.zfill(bits)
+        return int(binary[::-1], 2)
 
 def fft(x):
     """
     Perform a 3D Fast Fourier Transform
     """
+    x = x.astype(np.complex128)
 
-    # TODO: pad the array so the length of all axes is a power of 2
+    for i, size in enumerate(x.shape):
+        if size != 2**int(np.log2(size)):
+            padding = np.zeros((len(x.shape),2), dtype=int)
+            padding[i] = [0, 2**int(np.ceil(np.log2(size))) - size]
+            x = np.pad(x, padding, mode='constant')
+    print(x.shape)
 
     for i in range(x.shape[0]):
         for j in range(x.shape[1]):
-            x[i,j,:] = _fft(x[i,j])
+            x[i,j,:] = _fft(x[i,j,:])
     
     for i in range(x.shape[0]):
         for k in range(x.shape[2]):
@@ -143,47 +128,32 @@ def _fft(x):
     """
     Perform a 1D Fast Fourier Transform
     """
+
+    if x.dtype != np.complex128:
+        raise ValueError("Input array should be of type np.complex128")
     
     N = len(x)
 
-    # bit-reversal
+    # bit-reversal of indices
+    bits = int(np.ceil(np.log2(N)))
     ind = []
     for i in range(N):
-        ind.append(bit_reverse(i))
-
-    y = np.zeros(x.shape)
+        ind.append(bit_reverse_int(i, bits=bits))
+    y = np.zeros(x.shape, dtype=np.complex128)
     y[ind] = x
-    
-    for Nj in range(2,N,2):
-        for n in range(0,N-1,Nj):
-            for k in range(0,Nj//2-1):
-                print(f"Nj: {Nj}, n: {n}, k: {k}, m: {n+k}")
-                m = n+k
-                if m+Nj//2 >= N:
-                    continue
 
+    for Nj in 2**np.arange(1,np.log2(N)+1):
+        Nj = int(Nj)
+        for n in range(0,N,Nj):
+            for k in range(0,Nj//2):
+                m = n+k
                 t = y[m]
                 y[m] = t + np.exp(2j*np.pi*k/Nj) * y[m+Nj//2]
                 y[m+Nj//2] = t - np.exp(2j*np.pi*k/Nj) * y[m+Nj//2]
     return y
 
-def _dft(x):
-    N = len(x)
+fourier_potential = np.log10(np.abs(fft(potential.value)))
 
-    if N>2:
-        x = np.concatenate((_dft(x[::2],N=N/2),_dft(x[1::2],N=N/2)))
-    
-    for k in range(N/2-1):
-        t = x[k]
-        x[k] = t + np.exp(2j*np.pi*k/N) * x[k+N/2]
-        x[k+N/2] = t - np.exp(2j*np.pi*k/N) * x[k+N/2]
-    return x
-
-#test_bit_reverse()
-
-fourier_potential = np.abs(np.fft.fftn(potential))
-fourier_potential_itt = np.abs(fft(potential.value))
-#fourier_potential_non_itt = np.abs(_dft(potential))
 fig, ax = plt.subplots(2,2, figsize=(10,8))
 pcm = ax[0,0].pcolormesh(np.arange(0,16), np.arange(0,16), fourier_potential[4])
 ax[0,0].set(ylabel='y', title='z = 4.5')
@@ -202,24 +172,4 @@ ax[0,1].set_aspect('equal', 'box')
 ax[1,0].set_aspect('equal', 'box')
 ax[1,1].set_aspect('equal', 'box')
 plt.savefig("fig2b_fourier.png")
-plt.close()
-
-fig, ax = plt.subplots(2,2, figsize=(10,8))
-pcm = ax[0,0].pcolormesh(np.arange(0,16), np.arange(0,16), fourier_potential[4])
-ax[0,0].set(ylabel='y', title='z = 4.5')
-fig.colorbar(pcm, ax=ax[0,0], label=r'log10(|$\~\Phi$|)')
-pcm =ax[0,1].pcolormesh(np.arange(0,16), np.arange(0,16), fourier_potential_itt[4])
-ax[0,1].set(title='z = 9.5')
-fig.colorbar(pcm, ax=ax[0,1], label=r'log10(|$\~\Phi$|)')
-pcm = ax[1,0].pcolormesh(np.arange(0,16), np.arange(0,16), fourier_potential[14])
-ax[1,0].set(ylabel='y', xlabel='x', title='z = 11.5')
-fig.colorbar(pcm, ax=ax[1,0], label=r'log10(|$\~\Phi$|)')
-pcm = ax[1,1].pcolormesh(np.arange(0,16), np.arange(0,16), fourier_potential_itt[14])
-ax[1,1].set(xlabel='x', title='z = 14.5')
-fig.colorbar(pcm, ax=ax[1,1], label=r'log10(|$\~\Phi$|)')
-ax[0,0].set_aspect('equal', 'box')
-ax[0,1].set_aspect('equal', 'box')
-ax[1,0].set_aspect('equal', 'box')
-ax[1,1].set_aspect('equal', 'box')
-plt.savefig("fig2b_fourier-1.png")
 plt.close()
