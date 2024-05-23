@@ -55,17 +55,10 @@ plt.close()
 #x, y, z = np.random.rand(3,9,10)*10-5 # REPLACE
 #time = x.copy()*0 +np.linspace(0,200,10) # REPLACE
 
-def a2(x):
-    """Gravitational force from the Sun acting on one of the planets (with mass m and position vector x relative to the Sun)"""
-    if np.all(x==0):
-        return np.zeros(3) * u.m/u.s**2
-    abs = G*M_sun/(np.abs(x.value)**2) / x.unit**2
-    unit = x.value/np.abs(x.value)
-    return -abs*unit
-
 def a(x):
-    abs = G*M_sun/(x[0]**2+x[1]**2+x[2]**2)
-    unit = x/np.sqrt(x[0]**2+x[1]**2+x[2]**2)
+    r2 = x[0]**2+x[1]**2+x[2]**2
+    abs = G*M_sun/r2
+    unit = x/np.sqrt(r2)
     return unit[0]*abs, unit[1]*abs, unit[2]*abs
 
 time = t + np.arange(0,200*365,0.5)*u.day
@@ -79,7 +72,8 @@ vx, vy, vz = np.zeros((3,9,len(time))) * u.AU/u.d
 vx[:,0], vy[:,0], vz[:,0] = vx_init.copy() * u.AU/u.d, vy_init.copy() * u.AU/u.d, vz_init.copy() * u.AU/u.d
 
 for i in range(1,len(names)):
-    for j, t_j in enumerate(time[:-1]):
+    print(names[i])
+    for j in range(0,len(time)-1):
         #ax, ay, az = a(np.array([(x[i,j]-x[0,j]).value,(y[i,j]-y[0,j]).value,(z[i,j]-z[0,j]).value])*x.unit)
         ax, ay, az = a(np.array([(x[0,j]-x[i,j]).to_value(u.AU),(y[0,j]-y[i,j]).to_value(u.AU),(z[0,j]-z[i,j]).to_value(u.AU)]))
 
