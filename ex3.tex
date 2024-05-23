@@ -4,6 +4,7 @@
 
 \subsection*{a}
 For this exercise I classified galaxies into two types: spirals and ellipticals, using logistic regression.
+The used dataset contained four parameters for each galaxy: $\kappa_{\text{CO}}$, a color estimate, a measure of how extended the galaxy is, and the emission line flux.
 
 First the data has to be prepared; logistic regression works best on a dataset with mean 0 and standard deviation 1.
 Therefore we rescale the given dataset, resulting in the following:
@@ -29,7 +30,7 @@ All possible combinations are then compared in figure \ref{fig:logistic_regressi
 \begin{figure}
     \centering
     \includegraphics[width=0.8\textwidth]{fig3b.png}
-    \caption{The results of the logistic regression.}
+    \caption{The results of the logistic regression. Here parameter 1 represents $\kappa_{\text{CO}}$, parameter 2 a color estimate, parameter 3 a measure of how extended the galaxy is, and the fourth parameter gives the emission line flux.}
     \label{fig:logistic_regression}
 \end{figure}
 
