@@ -12,11 +12,11 @@ This allows the use of the Fast Fourier Transform (FFT) to speed up the calculat
 
 For the gravitational force the density contrast is the important field (and not the density itself).
 This is defined as $\delta(\mathbf{x}) = \frac{\rho(\mathbf{x})}{\bar{\rho}} - 1$.
-Figure \ref{fig:density_contrast} shows the density contrast for a four slices in the 16x16x16 grid.
+Figure \ref{fig:density_contrast} shows the density contrast for four slices in the 16x16x16 grid used here.
 \begin{figure}
     \centering
     \includegraphics[width=0.8\textwidth]{fig2a.png}
-    \caption{Density contrast for four slices in the 16x16x16 grid.}
+    \caption{Density contrast for four slices in the 16x16x16 grid. All parameters are in arbitrary units}
     \label{fig:density_contrast}
 \end{figure}
 
@@ -32,12 +32,12 @@ To convert the density contrast into gravitational forces, the Poisson equation 
 As we only need the spatial dependance in this field, we can simplify this to $\nabla^2 \phi \propto \delta$.
 This can be easily solved in Fourier space:
 \begin{align}
-    \nabla^2 \Phi \propto \delta \Rightarrow^{\text{FFT}} k^2 \tilde{\Phi} \propto \tilde{\delta} \Rightarrow^{rewrite} \tilde{\Phi} \propto \frac{\tilde{\delta}}{k^2}
-    \Rightarrow^{iFFT} \Phi.    
+    \nabla^2 \Phi \propto \delta \xrightarrow{\text{FFT}} k^2 \tilde{\Phi} \propto \tilde{\delta} \xrightarrow{rewrite} \tilde{\Phi} \propto \frac{\tilde{\delta}}{k^2}
+    \xrightarrow{iFFT} \Phi.    
 \end{align}
 
-A FFT implementation using the Cooley-Tukey algorithm then gives the gravitational potential $\Phi$, as can be seen in figure \ref{fig:gravitational_potential}.
-The intermediate result of the fourier transformed density contrast is shown in figure \ref{fig:fourier_potential}.
+An FFT implementation using the Cooley-Tukey algorithm then gives the gravitational potential $\Phi$, as can be seen in figure \ref{fig:gravitational_potential}.
+The intermediate result of the fourier transformed density contrast ($\tilde{\Phi}$) is shown in figure \ref{fig:fourier_potential}.
 
 \begin{figure}
     \centering
@@ -53,7 +53,7 @@ The intermediate result of the fourier transformed density contrast is shown in 
     \label{fig:gravitational_potential}
 \end{figure}
 
-\lstinputlisting[fistline=60, caption=Code used for Exercise 2b]{ex2.py}
+\lstinputlisting[firstline=60, caption=Code used for Exercise 2b]{ex2.py}
 
 
 

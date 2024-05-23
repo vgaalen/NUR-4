@@ -4,13 +4,13 @@
 
 \subsection*{a}
 For this exercise I classified galaxies into two types: spirals and ellipticals, using logistic regression.
-The used dataset contained four parameters for each galaxy: $\kappa_{\text{CO}}$, a color estimate, a measure of how extended the galaxy is, and the emission line flux.
+The used dataset contained four parameters for each galaxy: $\kappa_{\text{CO}}$\footnote{this parameter indicates to what degree a galaxy is dominated by ordered rotation}, a color estimate, a measure of how extended the galaxy is, and the emission line flux.
 
 First the data has to be prepared; logistic regression works best on a dataset with mean 0 and standard deviation 1.
-Therefore we rescale the given dataset, resulting in the following:
-\lstinputlisting[lastline=10, caption=The first 10 entries in the dataset after rescaling.]{3a.txt}
+Therefore we rescale the given dataset, listing \ref{data} shows the first 10 entries of this preprocessed dataset.
+\lstinputlisting[lastline=10, label=data, caption=The first 10 entries in the dataset after rescaling. The columns represent ($\kappa_{\text{CO}}$; color; extended; emission line flux).]{3a.txt}
 
-The full distributions than like this (figure \ref{fig:rescaled_data}):
+The full distributions then like this (figure \ref{fig:rescaled_data}):
 \begin{figure}
     \centering
     \includegraphics[width=0.8\textwidth]{fig3a.png}
@@ -41,9 +41,19 @@ This plot shows that $\kappa_{\text{CO}}$ and the color best describe the type o
 
 \subsection*{c}
 In order to see how well the logistic regression works, I computed the true positives, true negatives, false positives, false negatives, and F1-Score for each set of parameters:
-\lstinputlisting{3c.txt}
+\lstinputlisting[caption=Performance scores of logistics regression for different combinations of the parameters. Here parameter 1 represents $\kappa_{\text{CO}}$; parameter 2 a color estimate; parameter 3 a measure of how extended the galaxy is; and the fourth parameter gives the emission line flux.]{3c.txt}
 
-This shows again that the first set of parameters is best suited for this application.
+This shows again that the first set of parameters is best suited for this application, which refers to $\kappa_{\text{CO}}$ and the color estimate.
+With an F1-score of 0.95, the logistics regression shows very good results.
+
+A look at figure \ref{fig:3c} confirms this, with the decision boundaries lining up nicely with the division in the galaxy's classes. The F1-scores found here are therefore a good representation of how well these parameters can predict a galaxy's type
+
+\begin{figure}
+	\centering
+    \includegraphics[width=0.8\textwidth]{fig3c.png}
+    \caption{The results of the logistic regression. The dashed lines indicate the final decision boundaries found and the colors indicate the true values of the datapoints with the yellow points representing spiral galaxies and purple points representing elliptical galaxies}
+    \label{fig:3c}
+\end{figure}
 
 \lstinputlisting[firstline=202, caption=Code used for Exercise 3c]{ex3.py}
 
