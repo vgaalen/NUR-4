@@ -58,27 +58,6 @@ plt.savefig("fig2a.png")
 plt.close()
 
 # Problem 2.b
-# potential = 4*np.pi*G*densitycontrast
-# fig, ax = plt.subplots(2,2, figsize=(10,8))
-# pcm = ax[0,0].pcolormesh(np.arange(0,16), np.arange(0,16), potential[4])
-# ax[0,0].set(ylabel='y', title='z = 4.5')
-# fig.colorbar(pcm, ax=ax[0,0], label='Potential')
-# pcm =ax[0,1].pcolormesh(np.arange(0,16), np.arange(0,16), potential[9])
-# ax[0,1].set(title='z = 9.5')
-# fig.colorbar(pcm, ax=ax[0,1], label='Potential')
-# pcm = ax[1,0].pcolormesh(np.arange(0,16), np.arange(0,16), potential[11])
-# ax[1,0].set(ylabel='y', xlabel='x', title='z = 11.5')
-# fig.colorbar(pcm, ax=ax[1,0], label='Potential')
-# pcm = ax[1,1].pcolormesh(np.arange(0,16), np.arange(0,16), potential[14])
-# ax[1,1].set(xlabel='x', title='z = 14.5')
-# fig.colorbar(pcm, ax=ax[1,1], label='Potential')
-# ax[0,0].set_aspect('equal', 'box')
-# ax[0,1].set_aspect('equal', 'box')
-# ax[1,0].set_aspect('equal', 'box')
-# ax[1,1].set_aspect('equal', 'box')
-# plt.savefig("fig2b_pot.png")
-# plt.close()
-
 def bit_reverse_int(n, bits=None):
     """
     Perform a bit-reversal on an integer
@@ -99,33 +78,6 @@ def bit_reverse_int(n, bits=None):
         binary = binary.zfill(bits)
         return int(binary[::-1], 2)
 
-# def fft(x):
-#     """
-#     Perform a 3D Fast Fourier Transform
-#     """
-#     x = x.astype(np.complex128)
-
-#     for i, size in enumerate(x.shape):
-#         if size != 2**int(np.log2(size)):
-#             padding = np.zeros((len(x.shape),2), dtype=int)
-#             padding[i] = [0, 2**int(np.ceil(np.log2(size))) - size]
-#             x = np.pad(x, padding, mode='constant')
-#     print(x.shape)
-
-#     for i in range(x.shape[0]):
-#         for j in range(x.shape[1]):
-#             x[i,j,:] = _fft(x[i,j,:])
-    
-#     for i in range(x.shape[0]):
-#         for k in range(x.shape[2]):
-#             x[i,:,k] = _fft(x[i,:,k])
-    
-#     for j in range(x.shape[1]):
-#         for k in range(x.shape[2]):
-#             x[:,j,k] = _fft(x[:,j,k])
-    
-#     return x
-
 def fft(x):
     """
     Perform a Fast Fourier Transform
@@ -133,27 +85,21 @@ def fft(x):
     x = x.astype(np.complex128)
     
     if len(x.shape) == 1:
-    #     if x.shape[0] != 2**int(np.log2(x.shape[0])):
-    #         x = np.pad(x, [0, 2**int(np.ceil(np.log2(x.shape[0]))) - x.shape[0]], mode='constant')
+        if x.shape[0] != 2**int(np.log2(x.shape[0])):
+            x = np.pad(x, [0, 2**int(np.ceil(np.log2(x.shape[0]))) - x.shape[0]], mode='constant')
         return _fft(x)
     
-    # for i in range(x.shape[0]):
-    #     x[i] = fft(x[i])
-
     for i in range(x.shape[0]):
         for j in range(x.shape[1]):
             x[i,j,:] = _fft(x[i,j,:])
-            #x[i,j,:] = np.fft.fft(x[i,j,:])
     
     for i in range(x.shape[0]):
         for k in range(x.shape[2]):
             x[i,:,k] = _fft(x[i,:,k])
-            #x[i,:,k] = np.fft.fft(x[i,:,k])
     
     for j in range(x.shape[1]):
         for k in range(x.shape[2]):
             x[:,j,k] = _fft(x[:,j,k])
-            #x[:,j,k] = np.fft.fft(x[:,j,k])
     
     return x
 
@@ -161,51 +107,31 @@ def ifft(x):
     """
     Perform an Inverse Fast Fourier Transform
     """
-    # x = x.astype(np.complex128)
-    
-    # if len(x.shape) == 1:
-    #     if x.shape[0] != 2**int(np.log2(x.shape[0])):
-    #         x = np.pad(x, [0, 2**int(np.ceil(np.log2(x.shape[0]))) - x.shape[0]], mode='constant')
-    #     return _ifft(x)
-    
-    # for i in range(x.shape[0]):
-    #     x[i] = ifft(x[i])
-    # return x
     x = x.astype(np.complex128)
     
     if len(x.shape) == 1:
-    #     if x.shape[0] != 2**int(np.log2(x.shape[0])):
-    #         x = np.pad(x, [0, 2**int(np.ceil(np.log2(x.shape[0]))) - x.shape[0]], mode='constant')
+        if x.shape[0] != 2**int(np.log2(x.shape[0])):
+            x = np.pad(x, [0, 2**int(np.ceil(np.log2(x.shape[0]))) - x.shape[0]], mode='constant')
         return _fft(x)
-    
-    # for i in range(x.shape[0]):
-    #     x[i] = fft(x[i])
 
     for i in range(x.shape[0]):
         for j in range(x.shape[1]):
             x[i,j,:] = _ifft(x[i,j,:])
-            #x[i,j,:] = np.fft.fft(x[i,j,:])
     
     for i in range(x.shape[0]):
         for k in range(x.shape[2]):
             x[i,:,k] = _ifft(x[i,:,k])
-            #x[i,:,k] = np.fft.fft(x[i,:,k])
     
     for j in range(x.shape[1]):
         for k in range(x.shape[2]):
             x[:,j,k] = _ifft(x[:,j,k])
-            #x[:,j,k] = np.fft.fft(x[:,j,k])
     
     return x
 
 def _fft(x):
     """
     Perform a 1D Fast Fourier Transform
-    """
-
-    # if x.dtype != np.complex128:
-    #     raise ValueError("Input array should be of type np.complex128")
-    
+    """   
     N = len(x)
 
     # bit-reversal of indices
@@ -227,31 +153,10 @@ def _fft(x):
                 y[m+Nj//2] = t - u
     return y
 
-def _fft_recursive(x, Nj=None):
-    N = len(x)
-    if Nj is None:
-        Nj = len(x)
-
-    if Nj > 2:
-        front = _fft_recursive(x[::2], Nj=Nj//2)
-        back = _fft_recursive(x[1::2], Nj=Nj//2)
-        x = np.concatenate([front, back])
-    if True:
-        for k in range(0,Nj//2):
-            t = x[k]
-            u = np.exp(2j*np.pi*k/Nj) * x[k+Nj//2]
-            x[k] = t + u
-            x[k+Nj//2] = t - u
-    return x
-
 def _ifft(x):
     """
     Perform a 1D Fast Fourier Transform
-    """
-
-    # if x.dtype != np.complex128:
-    #     raise ValueError("Input array should be of type np.complex128")
-    
+    """    
     N = len(x)
 
     # bit-reversal of indices
@@ -273,56 +178,6 @@ def _ifft(x):
                 y[m+Nj//2] = t - u
     return y/N
 
-set = np.random.rand(16).astype(np.complex128)
-assert _ifft(_fft(set)).all() == set.all()
-
-def test_bit_reverse_int():
-    assert bit_reverse_int(0) == 0
-    assert bit_reverse_int(1) == 1
-    assert bit_reverse_int(int("1001011",2), bits=8) == int("11010010", 2)
-
-def test_fft(tol=1e-15):
-    #x = np.array([0.1,0.2,0.3,0.4,0.5,0.4,0.3,0.2])
-    x = np.array([0.154093,0.2433442,0.332553,0.48765554,0.54555,0.426442,0.32642,0.226857])
-    #x = np.random.randn(8)
-    FFT = _fft(x)
-    #FFT = _fft_recursive(x.astype(np.complex128))
-    FFT_numpy = np.fft.fft(x)
-    try:
-        assert all(abs(FFT-FFT_numpy) < tol)
-    except AssertionError:
-        print(np.max(abs(FFT-FFT_numpy)))
-        print(np.mean(abs(FFT-FFT_numpy)))
-        raise AssertionError
-
-def test_fft2(tol=1e-5):
-    x = np.random.randn(16,16,16).astype(np.complex128)
-    FFT = fft(x.copy())
-    FFT_numpy = np.fft.fftn(x.copy())
-    try:
-        assert np.all(abs(FFT-FFT_numpy) < tol)
-    except AssertionError:
-        print(np.max(abs(FFT-FFT_numpy)))
-        print(np.mean(abs(FFT-FFT_numpy)))
-        raise AssertionError
-
-def test_ifft3(tol=1e-5):
-    x = np.random.randn(16,16,16)
-    IFFT = ifft(x)
-    IFFT_numpy = np.fft.ifftn(x)
-    try:
-        assert np.all(abs(IFFT-IFFT_numpy) < tol)
-    except AssertionError:
-        print(np.max(abs(IFFT-IFFT_numpy)))
-        print(np.mean(abs(IFFT-IFFT_numpy)))
-        raise AssertionError
-
-test_bit_reverse_int()
-test_fft()
-test_fft2()
-test_ifft3()
-
-#fourier_potential = np.log10(np.abs(fft(potential.value)))
 k = np.arange(densitycontrast.shape[0])
 kx, ky, kz = np.meshgrid(k, k, k)
 k2 = kx**2 + ky**2 + kz**2

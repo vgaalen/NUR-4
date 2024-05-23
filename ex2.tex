@@ -1,5 +1,6 @@
 \section{Calculating forces with the FFT}
 
+\lstinputlisting[lastline=35, caption=Code Shared Among the Subquestions of Exercise 2]{ex2.py}
 %\textcolor[red]{insert code}
 
 \subsection*{a}
@@ -19,6 +20,8 @@ Figure \ref{fig:density_contrast} shows the density contrast for a four slices i
     \label{fig:density_contrast}
 \end{figure}
 
+\lstinputlisting[firstline=37,lastline=58, caption=Code used for Exercise 2a]{ex2.py}
+
 
 
 \subsection*{b}
@@ -34,12 +37,13 @@ This can be easily solved in Fourier space:
 \end{align}
 
 A FFT implementation using the Cooley-Tukey algorithm then gives the gravitational potential $\Phi$, as can be seen in figure \ref{fig:gravitational_potential}.
+The intermediate result of the fourier transformed density contrast is shown in figure \ref{fig:fourier_potential}.
 
 \begin{figure}
     \centering
     \includegraphics[width=0.8\textwidth]{fig2b_fourier.png}
     \caption{The fourier transfer of the density contrast $~\Phi$ for four slices in the 16x16x16 grid.}
-    \label{fig:gravitational_potential}
+    \label{fig:fourier_potential}
 \end{figure}
 
 \begin{figure}
@@ -48,6 +52,8 @@ A FFT implementation using the Cooley-Tukey algorithm then gives the gravitation
     \caption{Gravitational potential $\Phi$ for four slices in the 16x16x16 grid.}
     \label{fig:gravitational_potential}
 \end{figure}
+
+\lstinputlisting[fistline=60, caption=Code used for Exercise 2b]{ex2.py}
 
 
 

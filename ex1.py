@@ -1,6 +1,4 @@
-# we need to import the time module from astropy
 from astropy.time import Time
-# import some coordinate things from astropy
 from astropy.coordinates import solar_system_ephemeris
 from astropy.coordinates import get_body_barycentric_posvel
 from astropy import units as u
@@ -11,22 +9,7 @@ import matplotlib.pyplot as plt
 # Question 1: Simulating the solar system
 
 # pick a time (please use either this or the current time)
-t = Time("2021-12-07 10:00")
-
-# initialize the planets; Mars is shown as an example
-with solar_system_ephemeris.set('jpl'):
-    mars = get_body_barycentric_posvel('mars', t)
-    
-print(mars)
-
-marsposition = mars[0]
-marsvelocity = mars[1]
-
-# calculate the x position in AU
-print(marsposition.x.to_value(u.AU))
-
-# calculate the v_x velocity in AU/day
-print(marsvelocity.x.to_value(u.AU/u.d))
+t = Time("2024-05-23 23:59")
 
 # Problem 1.a
 x_init, y_init, z_init = np.zeros((3,9))
@@ -52,8 +35,6 @@ plt.close()
 # Problem 1.b
 # For visibility, you may want to do two versions of this plot: 
 # one with all planets, and another zoomed in on the four inner planets
-#x, y, z = np.random.rand(3,9,10)*10-5 # REPLACE
-#time = x.copy()*0 +np.linspace(0,200,10) # REPLACE
 
 def a(x):
     r2 = x[0]**2+x[1]**2+x[2]**2
@@ -62,19 +43,16 @@ def a(x):
     return unit[0]*abs, unit[1]*abs, unit[2]*abs
 
 time = t + np.arange(0,200*365,0.5)*u.day
-#print(time)
 h = 0.5 * u.day
 
 x, y, z = np.zeros((3,9,len(time))) * u.AU
 x[:,0], y[:,0], z[:,0] = x_init.copy() * u.AU, y_init.copy() *u.AU, z_init.copy()*u.AU
-
 vx, vy, vz = np.zeros((3,9,len(time))) * u.AU/u.d
 vx[:,0], vy[:,0], vz[:,0] = vx_init.copy() * u.AU/u.d, vy_init.copy() * u.AU/u.d, vz_init.copy() * u.AU/u.d
 
 for i in range(1,len(names)):
     print(names[i])
     for j in range(0,len(time)-1):
-        #ax, ay, az = a(np.array([(x[i,j]-x[0,j]).value,(y[i,j]-y[0,j]).value,(z[i,j]-z[0,j]).value])*x.unit)
         ax, ay, az = a(np.array([(x[0,j]-x[i,j]).to_value(u.AU),(y[0,j]-y[i,j]).to_value(u.AU),(z[0,j]-z[i,j]).to_value(u.AU)]))
 
         if j==0:
@@ -121,18 +99,4 @@ ax[0].set(xlabel='VX [AU]', ylabel='VY [AU]')
 ax[1].set(xlabel='Time [yr]', ylabel='VZ [AU]')
 plt.legend(loc=(1.05,0))
 plt.savefig("fig1b-2.png")
-plt.close()
-
-
-# Bonus problem 1.c
-x, y, z = np.random.rand(3,9,10)*10-5 # REPLACE
-time = x.copy()*0 +np.linspace(0,200,10) # REPLACE
-fig, ax = plt.subplots(1,2, figsize=(12,5), constrained_layout=True)
-for i, obj in enumerate(np.flip(names)):
-    ax[0].plot(time[i,:], z[i,:], label=obj)
-    ax[1].plot(time[i,:], z[i,:], label=obj)
-ax[0].set(xlabel='Time [yr]', ylabel='Z [AU]', title='Leapfrog')
-ax[1].set(xlabel='Time [yr]', ylabel='Z [AU]', title='Other method')
-plt.legend(loc=(1.05,0))
-plt.savefig("fig1c.png")
 plt.close()
