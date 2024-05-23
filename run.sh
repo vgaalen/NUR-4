@@ -12,17 +12,17 @@ if [ ! -e "data/galaxy_data.txt" ]; then
     wget -O data/galaxy_data.txt https://home.strw.leidenuniv.nl/~daalen/Handin_files/galaxy_data.txt
 fi
 
-if [! -e "fig1a.png" ]; then
+if [ ! -e "fig1a.png" ]; then
     echo "Run ex1.py"
     python3 ex1.py
 fi
 
-if [! -e "fig2a.png" ]; then
+if [ ! -e "fig2a.png" ]; then
     echo "Run ex2.py"
     python3 ex2.py
 fi
 
-if [! -e "fig3a.png" ]; then
+if [ ! -e "fig3a.png" ]; then
     echo "Run ex3.py"
     python3 ex3.py
 fi

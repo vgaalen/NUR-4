@@ -1,6 +1,6 @@
 \section{Calculating forces with the FFT}
 
-\textcolor[red]{insert code}
+%\textcolor[red]{insert code}
 
 \subsection*{a}
 Tracking the forces between a large number of particles can be computationally expensive.
@@ -34,9 +34,17 @@ This can be easily solved in Fourier space:
 \end{align}
 
 A FFT implementation using the Cooley-Tukey algorithm then gives the gravitational potential $\Phi$, as can be seen in figure \ref{fig:gravitational_potential}.
+
 \begin{figure}
     \centering
-    \includegraphics[width=0.8\textwidth]{fig2b.png}
+    \includegraphics[width=0.8\textwidth]{fig2b_fourier.png}
+    \caption{The fourier transfer of the density contrast $~\Phi$ for four slices in the 16x16x16 grid.}
+    \label{fig:gravitational_potential}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{fig2b_grav.png}
     \caption{Gravitational potential $\Phi$ for four slices in the 16x16x16 grid.}
     \label{fig:gravitational_potential}
 \end{figure}
