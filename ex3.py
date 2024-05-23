@@ -8,17 +8,13 @@ import time
 # Problem 3.a
 data = np.loadtxt('data/galaxy_data.txt')
 features = data[:,:4]
-#print(features.shape)
 
 # Scale the features (so they have mean 0 and sdev 1)
 features = (features - np.mean(features, axis=0)[None,:]) / np.std(features, axis=0)[None,:]
 
 np.savetxt("3a.txt", features)
 
-#print(np.mean(features, axis=0))
-#print(np.std(features, axis=0))
-
-bin_class = np.linspace(-2,2,50)#np.random.randint(0,high=2, size=100) # REPLACE
+bin_class = np.linspace(-2,2,50)
 fig, ax = plt.subplots(2,2, figsize=(10,8))
 ax[0,0].hist(features[:,0], bins=bin_class)
 ax[0,0].set(ylabel='N', xlabel=r'$\kappa_{CO}$')
@@ -56,15 +52,12 @@ def eval(x, theta):
     return out
 
 def cost_function(x, y, theta):
-    y_model = logistic_function(x,theta)#logistic_function(x, theta)
-    #print(x.shape, y.shape, y_model.shape, theta.shape)
+    y_model = logistic_function(x,theta)
     mask1 = (y==1)&(y_model!=0)
     mask2 = (y==0)&(y_model!=1)
     if np.sum(mask1) > 0 and np.sum(mask2) > 0:
         cost = 0
-        print(-np.sum(y[mask1]*np.log(y_model[mask1])))
         cost += -np.sum(y[mask1]*np.log(y_model[mask1]))
-        print(-np.sum((1-y[mask2])*np.log(1-y_model[mask2])))
         cost += -np.sum((1-y[mask2])*np.log(1-y_model[mask2]))
         return cost
     else:
@@ -182,8 +175,7 @@ def DownhillSimplex(f,x,target_accuracy, num_itt=1000):
 # Minimize the cost function
 theta = np.ones(4)
 x_0 = np.concatenate([[theta],np.random.rand(4,4)])
-#print(x_0)
-#print(features.shape)
+
 out = np.zeros((6,2))
 out[0], cost12 = DownhillSimplex(lambda x: cost_function(features[:,:2], truth, x), x_0[:3,:2], 1e-5)
 out[1], cost13 = DownhillSimplex(lambda x: cost_function(features[:,:3:2], truth, x), x_0[:3,:3:2], 1e-5)
@@ -194,21 +186,13 @@ out[5], cost34 = DownhillSimplex(lambda x: cost_function(features[:,2:4], truth,
 
 features_subset = np.array([features[:,:2],features[:,:3:2],features[:,::3],features[:,1:3],features[:,1::2],features[:,2:4]])
 
-#print(out)
-
-#cost = cost_function(features, mask, out)
-#print(cost)
-
-
-#cost_function = np.random.rand(30, 2) # REPLACE
 fig, ax  = plt.subplots(1,1, figsize=(10,5), constrained_layout=True)
 ax.plot(np.arange(0,len(cost12)), cost12[:], label='Features 1+2')
-ax.plot(np.arange(0,len(cost13)), cost13[:], label='Features 1+3') # SAME IDEA FOR THE OTHER FEATURE COMBINATIONS
+ax.plot(np.arange(0,len(cost13)), cost13[:], label='Features 1+3')
 ax.plot(np.arange(0,len(cost14)), cost14[:], label='Features 1+4')
 ax.plot(np.arange(0,len(cost23)), cost23[:], label='Features 2+3')
 ax.plot(np.arange(0,len(cost34)), cost34[:], label='Features 3+4')
 ax.plot(np.arange(0,len(cost24)), cost24[:], label='Features 2+4')
-#...........
 ax.set(xlabel='Number of iterations', ylabel='Cost function')
 ax.set_xscale('log')
 plt.legend(loc=(1.05,0))
@@ -221,40 +205,18 @@ fig, ax = plt.subplots(3,2,figsize=(10,15))
 names = [r'$\kappa_{CO}$', 'Color', 'Extended', 'Emission line flux']
 plot_idx = [[0,0], [0,1], [1,0], [1,1], [2,0], [2,1]]
 for i, comb in enumerate(itertools.combinations(np.arange(0,4), 2)):
-    print(comb)
+    #print(comb)
     ax[plot_idx[i][0],plot_idx[i][1]].scatter(features[:,comb[0]], features[:,comb[1]], c=bin_class)
     ax[plot_idx[i][0],plot_idx[i][1]].set(xlabel=names[comb[0]], ylabel=names[comb[1]])
 
     ylims = ax[plot_idx[i][0],plot_idx[i][1]].get_ylim()
     xlims = ax[plot_idx[i][0],plot_idx[i][1]].get_xlim()
 
-    y_0 = -1 * out[i,0] * xlims[0] / out[i,1]
-    y_1 = -1 * out[i,0] * xlims[1] / out[i,1]
-
-    x_0 = -1 * out[i,1] * ylims[0] / out[i,0]
-    x_1 = -1 * out[i,1] * ylims[1] / out[i,0]
-
-    # x_0 = np.min(features[:,comb[0]])
-    # x_1 = np.max(features[:,comb[0]])
-    # y_0 = -1 * out[i,0] * x_0 / out[i,1]
-    # y_1 = -1 * out[i,0] * x_1 / out[i,1]
-
-    # y_0 = np.min(features[:,comb[1]])
-    # y_1 = np.max(features[:,comb[1]])
-    # x_0 = -1 * out[i,1] * y_0 / out[i,0]
-    # x_1 = -1 * out[i,1] * y_1 / out[i,0]
-    #ax[plot_idx[i][0],plot_idx[i][1]].plot([0.5,0.5],[0,1], 'k--')
-    #ax[plot_idx[i][0], plot_idx[i][1]].plot([x_0,y_0],[x_1,y_1], 'k--')
-
-    if ylims[0] <= y_0 <= ylims[1]:
-        if ylims[0] <= y_1 <= ylims[1]:
-            ax[plot_idx[i][0], plot_idx[i][1]].plot([xlims[0],y_0],[xlims[1],y_1], 'k--')
-        else:
-            ax[plot_idx[i][0], plot_idx[i][1]].plot([xlims[0],y_0],[x_0,ylims[1]], 'k--')
-    elif ylims[0] <= y_1 <= ylims[1]:
-        ax[plot_idx[i][0], plot_idx[i][1]].plot([x_0,ylims[0]],[xlims[1],y_1], 'k--')
-    else:
-        ax[plot_idx[i][0], plot_idx[i][1]].plot([x_0,ylims[0]],[x_0,ylims[1]], 'k--')
+    y_0 = -1 * out[i,1] * -2 / out[i,0]
+    y_1 = -1 * out[i,1] * 2 / out[i,0]
+    assert logistic_function(np.array([y_0,-2]),np.array(out[i])) == 1/2
+    assert logistic_function(np.array([y_1,2]),np.array(out[i])) == 1/2
+    ax[plot_idx[i][0], plot_idx[i][1]].axline(xy1=(y_0,-2), xy2=(y_1,2), color="black", linestyle=(0, (5, 5)))
 
     ax[plot_idx[i][0], plot_idx[i][1]].set_xlim(xlims)
     ax[plot_idx[i][0], plot_idx[i][1]].set_ylim(ylims)
