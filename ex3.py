@@ -8,15 +8,15 @@ import time
 # Problem 3.a
 data = np.loadtxt('data/galaxy_data.txt')
 features = data[:,:4]
-print(features.shape)
+#print(features.shape)
 
 # Scale the features (so they have mean 0 and sdev 1)
 features = (features - np.mean(features, axis=0)[None,:]) / np.std(features, axis=0)[None,:]
 
 np.savetxt("3a.txt", features)
 
-print(np.mean(features, axis=0))
-print(np.std(features, axis=0))
+#print(np.mean(features, axis=0))
+#print(np.std(features, axis=0))
 
 bin_class = np.linspace(-2,2,50)#np.random.randint(0,high=2, size=100) # REPLACE
 fig, ax = plt.subplots(2,2, figsize=(10,8))
@@ -31,8 +31,8 @@ ax[1,1].set(xlabel='Emission line flux')
 plt.savefig("fig3a.png")
 plt.close()
 
-mask = data[:,4]
-features2 = features[mask==1]
+truth = data[:,4]
+features2 = features[truth==1]
 fig, ax = plt.subplots(2,2, figsize=(10,8))
 ax[0,0].hist(features2[:,0], bins=bin_class)
 ax[0,0].set(ylabel='N', xlabel=r'$\kappa_{CO}$')
@@ -56,12 +56,19 @@ def eval(x, theta):
     return out
 
 def cost_function(x, y, theta):
-    y_model = logistic_function(x, theta)
+    y_model = logistic_function(x,theta)#logistic_function(x, theta)
     #print(x.shape, y.shape, y_model.shape, theta.shape)
-    mask = (y_model!=0)&(y_model!=1)
-    if len(y[mask])>0:
-        return -np.sum(y[mask]*np.log(y_model[mask]) + (1-y[mask])*np.log(1-y_model[mask]))/len(y[mask])
+    mask1 = (y==1)&(y_model!=0)
+    mask2 = (y==0)&(y_model!=1)
+    if np.sum(mask1) > 0 and np.sum(mask2) > 0:
+        cost = 0
+        print(-np.sum(y[mask1]*np.log(y_model[mask1])))
+        cost += -np.sum(y[mask1]*np.log(y_model[mask1]))
+        print(-np.sum((1-y[mask2])*np.log(1-y_model[mask2])))
+        cost += -np.sum((1-y[mask2])*np.log(1-y_model[mask2]))
+        return cost
     else:
+        print("ERROR")
         return np.inf
 
 def multid_quick_sort(y,x):
@@ -175,19 +182,19 @@ def DownhillSimplex(f,x,target_accuracy, num_itt=1000):
 # Minimize the cost function
 theta = np.ones(4)
 x_0 = np.concatenate([[theta],np.random.rand(4,4)])
-print(x_0)
-print(features.shape)
+#print(x_0)
+#print(features.shape)
 out = np.zeros((6,2))
-out[0], cost12 = DownhillSimplex(lambda x: cost_function(features[:,:2], mask, x), x_0[:3,:2], 1e-5)
-out[1], cost13 = DownhillSimplex(lambda x: cost_function(features[:,:3:2], mask, x), x_0[:3,:3:2], 1e-5)
-out[2], cost14 = DownhillSimplex(lambda x: cost_function(features[:,::3], mask, x), x_0[:3,::3], 1e-5)
-out[3], cost23 = DownhillSimplex(lambda x: cost_function(features[:,1:3], mask, x), x_0[:3,1:3], 1e-5)
-out[4], cost24 = DownhillSimplex(lambda x: cost_function(features[:,1::2], mask, x), x_0[:3,1::2], 1e-5)
-out[5], cost34 = DownhillSimplex(lambda x: cost_function(features[:,2:4], mask, x), x_0[:3,2:4], 1e-5)
+out[0], cost12 = DownhillSimplex(lambda x: cost_function(features[:,:2], truth, x), x_0[:3,:2], 1e-5)
+out[1], cost13 = DownhillSimplex(lambda x: cost_function(features[:,:3:2], truth, x), x_0[:3,:3:2], 1e-5)
+out[2], cost14 = DownhillSimplex(lambda x: cost_function(features[:,::3], truth, x), x_0[:3,::3], 1e-5)
+out[3], cost23 = DownhillSimplex(lambda x: cost_function(features[:,1:3], truth, x), x_0[:3,1:3], 1e-5)
+out[4], cost24 = DownhillSimplex(lambda x: cost_function(features[:,1::2], truth, x), x_0[:3,1::2], 1e-5)
+out[5], cost34 = DownhillSimplex(lambda x: cost_function(features[:,2:4], truth, x), x_0[:3,2:4], 1e-5)
 
 features_subset = np.array([features[:,:2],features[:,:3:2],features[:,::3],features[:,1:3],features[:,1::2],features[:,2:4]])
 
-print(out)
+#print(out)
 
 #cost = cost_function(features, mask, out)
 #print(cost)
@@ -209,7 +216,7 @@ plt.savefig("fig3b.png")
 plt.close()
 
 # Problem 3.c
-bin_class = mask
+bin_class = truth
 fig, ax = plt.subplots(3,2,figsize=(10,15))
 names = [r'$\kappa_{CO}$', 'Color', 'Extended', 'Emission line flux']
 plot_idx = [[0,0], [0,1], [1,0], [1,1], [2,0], [2,1]]
@@ -217,17 +224,41 @@ for i, comb in enumerate(itertools.combinations(np.arange(0,4), 2)):
     print(comb)
     ax[plot_idx[i][0],plot_idx[i][1]].scatter(features[:,comb[0]], features[:,comb[1]], c=bin_class)
     ax[plot_idx[i][0],plot_idx[i][1]].set(xlabel=names[comb[0]], ylabel=names[comb[1]])
+
+    ylims = ax[plot_idx[i][0],plot_idx[i][1]].get_ylim()
+    xlims = ax[plot_idx[i][0],plot_idx[i][1]].get_xlim()
+
+    y_0 = -1 * out[i,0] * xlims[0] / out[i,1]
+    y_1 = -1 * out[i,0] * xlims[1] / out[i,1]
+
+    x_0 = -1 * out[i,1] * ylims[0] / out[i,0]
+    x_1 = -1 * out[i,1] * ylims[1] / out[i,0]
+
     # x_0 = np.min(features[:,comb[0]])
     # x_1 = np.max(features[:,comb[0]])
     # y_0 = -1 * out[i,0] * x_0 / out[i,1]
     # y_1 = -1 * out[i,0] * x_1 / out[i,1]
 
-    y_0 = np.min(features[:,comb[1]])
-    y_1 = np.max(features[:,comb[1]])
-    x_0 = -1 * out[i,1] * y_0 / out[i,0]
-    x_1 = -1 * out[i,1] * y_1 / out[i,0]
+    # y_0 = np.min(features[:,comb[1]])
+    # y_1 = np.max(features[:,comb[1]])
+    # x_0 = -1 * out[i,1] * y_0 / out[i,0]
+    # x_1 = -1 * out[i,1] * y_1 / out[i,0]
     #ax[plot_idx[i][0],plot_idx[i][1]].plot([0.5,0.5],[0,1], 'k--')
-    ax[plot_idx[i][0], plot_idx[i][1]].plot([x_0,y_0],[x_1,y_1], 'k--')
+    #ax[plot_idx[i][0], plot_idx[i][1]].plot([x_0,y_0],[x_1,y_1], 'k--')
+
+    if ylims[0] <= y_0 <= ylims[1]:
+        if ylims[0] <= y_1 <= ylims[1]:
+            ax[plot_idx[i][0], plot_idx[i][1]].plot([xlims[0],y_0],[xlims[1],y_1], 'k--')
+        else:
+            ax[plot_idx[i][0], plot_idx[i][1]].plot([xlims[0],y_0],[x_0,ylims[1]], 'k--')
+    elif ylims[0] <= y_1 <= ylims[1]:
+        ax[plot_idx[i][0], plot_idx[i][1]].plot([x_0,ylims[0]],[xlims[1],y_1], 'k--')
+    else:
+        ax[plot_idx[i][0], plot_idx[i][1]].plot([x_0,ylims[0]],[x_0,ylims[1]], 'k--')
+
+    ax[plot_idx[i][0], plot_idx[i][1]].set_xlim(xlims)
+    ax[plot_idx[i][0], plot_idx[i][1]].set_ylim(ylims)
+
 plt.savefig("fig3c.png")
 plt.close()
 
@@ -237,10 +268,10 @@ labels = ["1+2","1+3","1+4","2+3","2+4","3+4"]
 with open("3c.txt", "w") as f:
     f.write("Parameters, True Positive, False Positive, True Negative, False Negative, F1-Score\n")
     for i in range(6):
-        true_positive = np.sum((eval(features_subset[i], out[i]) == 1) & (mask == 1))
-        false_positive = np.sum((eval(features_subset[i], out[i]) == 1) & (mask == 0))
-        true_negative = np.sum((eval(features_subset[i], out[i]) == 0) & (mask == 0))
-        false_negative = np.sum((eval(features_subset[i], out[i]) == 0) & (mask == 1))
+        true_positive = np.sum((eval(features_subset[i], out[i]) == 1) & (truth == 1))
+        false_positive = np.sum((eval(features_subset[i], out[i]) == 1) & (truth == 0))
+        true_negative = np.sum((eval(features_subset[i], out[i]) == 0) & (truth == 0))
+        false_negative = np.sum((eval(features_subset[i], out[i]) == 0) & (truth == 1))
 
         precision = true_positive / (true_positive + false_positive)
         recall = true_positive / (true_positive + false_negative)
